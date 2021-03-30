@@ -6,7 +6,7 @@
 
 ## The hero editor
 
-Om een van een hero een object met variabelen te maken zetten we in de HeroesComponent een hero die de Hero interface implementeert. Deze interface bevat de variabelen: "id" en "name". 
+Om van een hero een object met variabelen te maken zetten we in de HeroesComponent een hero die de Hero interface implementeert. Deze interface bevat de variabelen: "id" en "name". 
 ```javascript
  export class HeroesComponent implements OnInit {
 
@@ -98,9 +98,70 @@ Wanneer er nu een selectedHero vaststaat zal deze als "selected" worden gezien v
 
 ## Creat a feature component
 
+Om onderdelen van elkaar te scheiden kunnen losse componenten worden gegenereerd. Deze componenten krijgen hun eigen css,html en typescript files. De componenten kunnen onderling informatie en data delen. Ook kunnen ze geactiveerd worden wanneer gewenst. Als voorbeeld kan een detailed component worden gebruikt vanuit de heroes component, dat ziet er als volgt uit in de heroes.component.html:
+```javascript
+<app-hero-detail [hero]="selectedHero"></app-hero-detail>
+``` 
+Wanneer er een hero uit de lijst wordt geselecteerd wordt de html vanuit hero-detail getoond. de hero-detail html bevat:
+```javascript
+<div *ngIf = "hero">
+    <h2>{{hero.name | uppercase}} Details</h2>
+    <div><span>id: </span>{{hero.id}}</div>
+    <div>
+    <label for="hero-name">Hero name: </label>
+    <input id="hero-name" [(ngModel)]="hero.name" placeholder="name">
+    </div>
+  </div>
+``` 
+Wanneer er een hero gekozen is zal het id en de naam van de hero getoond worden. 
 
 ## Add services
+Services worden gebruikt om informatie te delen tussen klassen die verder niks van elkaar weten. 
+Het genereren van een service geeft de volgende typescript:
+```javascript
+import { Injectable } from '@angular/core';
 
+@Injectable({
+  providedIn: 'root'
+})
+export class HeroService {
+
+  constructor() { }
+}
+
+```
+We vullen deze code aan om uiteindelijk heroes op te kunnen halen. Een simpele get functie krijgt dit al voor elkaar omdat we eerder een lijst met mock heroes hebben gemaakt die we hier kunnen importen en gebruiken als volgt:
+```javascript
+  getHeroes(): Hero[]{
+    return HEROES;
+  }
+```
+Deze functie kan nu worden gebruikt vanuit de heroes.component.ts door de HeroService mee te geven als parameter in de constructor. Binnen de klasse wordt opnieuw een "getHeroes()" functie gedifinieerd die verwijst naar de functionaliteit in de HeroService als volgt:
+
+```javascript
+getHeroes(): void{
+    this.heroes = this.HeroService.getHeroes();
+  }
+```
+Omdat we willen dat de lijst bij het inladen van de pagina wordt opgehaald wordt de functie aangeroepen in de "ngOnInit()" functie van de klasse. 
+
+In een echte applicatie wordt er gewerkt met Observables omdat je niet kan garanderen dat je meteen data ontvangt vanuit bijvoorbeeld een server. 
+We vervangen de getHeroes() functionaliteit met code die wel rekening houdt met de Observable data:
+
+```javascript
+  getHeroes(): Observable<Hero[]> {
+    const heroes = of(HEROES);
+    return heroes;
+  }
+```
+Omdat er nu een Observable type data wordt opgehaald moet dit in de heroes.component.ts ook worden vastgesteld. Er moet nu worden gesubscribed naar een functie zodat de data op elk moment kan worden ingelezen en gerefreshed. Het simuleert als het ware data die constant kan worden uitgelezen vanuit een server. De nieuwe getHeroes() functie ziet er als volgt uit:
+
+```javascript
+  getHeroes(): void {
+    this.heroService.getHeroes()
+        .subscribe(heroes => this.heroes = heroes);
+  }
+```
 ## Add navigation
 
 ## Get data from a server
