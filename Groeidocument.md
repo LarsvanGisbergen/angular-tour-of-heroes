@@ -186,4 +186,111 @@ De berichten service kan ook worden ingezet om bijvoorbeeld het id van een gekoz
 
 ## Add navigation
 
+Om gemakkelijk tussen componenten te switchen moet er een duidelijke navigatie zijn. Hiervoor wordt routing gebruikt. Er kan zo in de code duidelijk worden gemaakt hoe de webapp tussen componenten navigeerd. 
+
+Met behulp van routing kan een specifiek component worden gekoppeld aan een path:
+
+```javascript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { HeroesComponent } from './heroes/heroes.component';
+
+const routes: Routes = [
+  { path: 'heroes', component: HeroesComponent }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
+Er kan nu met bijvoorbeeld de volgende url worden genavigeerd naar het onderdeel HeroesComponent die in de voorafgaande onderdelen is ontwikkeld: "http://localhost:4200/heroes".
+
+Een gebruiker een url laten invoeren om te navigeren is niet ideaal, vandaar dat we een dashboard gaan opzetten met de componenten erin verwerkt. De dashboard typescript code ziet er als volgt uit:
+
+```javascript
+import { Component, OnInit } from '@angular/core';
+import { Hero } from '../hero';
+import { HeroService } from '../hero.service';
+
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
+})
+export class DashboardComponent implements OnInit {
+
+  constructor(private heroService: HeroService) { }
+
+  ngOnInit(): void {
+    this.getHeroes();
+  }
+
+  heroes : Hero[] = [];
+ 
+  getHeroes(): void {
+    this.heroService.getHeroes()
+      .subscribe(heroes => this.heroes = heroes.slice(1, 5));
+  }
+}
+
+```
+De getHeroes() functie kan nu wel in de init worden gezet omdat er een callback wordt aangemaakt. Hierdoor zal de actuele data altijd worden getoond, ook nadat de init functie is beindigd. 
+
+Om het dashboard als startpagina te kunnen tonen moet de app-routing.module worden aangepast:
+
+```javascript
+const routes: Routes = [
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: 'heroes', component: HeroesComponent },
+  { path: 'dashboard', component: DashboardComponent}
+];
+```
+De webpagina weet nu dat het dashboard als default pagina staat. Ook krijgt het dashboard haar eigen url: "http://localhost:4200/dashboard". Wat vanaf nu standaard zal worden voor elke component. 
+
+Deze manier van url verbinden met componenten werkt ook voor de componenten in onze heroes lijst namelijk de detailed views, door in de lijst routerlinks te zetten kan elk item in de lijst worden gekoppeld aan zijn eigen pagina, dat gaat als volgt:
+
+```javascript
+<h2>My Heroes</h2>
+<ul class="heroes">
+  <li *ngFor="let hero of heroes">
+    <a routerLink="/detail/{{hero.id}}">
+      <span class="badge">{{hero.id}}</span> {{hero.name}}
+    </a>
+  </li>
+</ul>
+
+```
+Om ook de daadwerkelijk bijbehorende data van de gekozen hero te tonen moet de hero met de aangegeven id worden opgehaald via HeroService. Deze service bevat namelijk de lijst met alle heroes. 
+(Ik had problemen tijdens het uitwerken vandaar dat ik de hero met id = 11 heb gehardcode zodat ik de opdracht af kon ronden). De code voor het koppelen aan de details pagina werkt als volgt:
+
+```javascript 
+  @Input() hero? : Hero;
+
+  constructor(
+    private route: ActivatedRoute,
+    private heroService: HeroService,
+    private location: Location
+  ) {}
+
+  ngOnInit(): void {
+    this.getHero();
+  }
+  
+  getHero(): void {
+    const id = 11;
+    this.heroService.getHero(id)
+      .subscribe(hero => this.hero = hero);
+  }
+
+  goBack(){
+    this.location.back();
+  }
+ 
+```
+Hierboven is ook te zien dat er een goBack() functie in de component zit verwerkt. Deze maakt gebruik van de Location module om te bepalen vanuit welke pagina de gebruiker komt en redirect de gebruiker daar terug naartoe. 
+
+
+
 ## Get data from a server
