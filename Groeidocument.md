@@ -77,7 +77,27 @@ De *ngFor zorgt ervoor dat alle items in de lijst doorlopen en op het scherm get
 
 De styling van alle onderdelen in een html file kan worden gedaan met css. De css van een bijbehorende html file bepaald de layout en opmaak van een onderdeel die wordt aangegeven in de html file. In mijn code is een goed voorbeeld de klasse: "heroes". In de css file wordt de opmaak van deze klasse uitgevoerd en heeft zo alleen effect op de "My Heroes" lijst.
 
+Wanneer er een hero uit de lijst wordt aangeklikt vanuit de gebruiker gebeurt er niks. Er zit namelijk nog geen functionaliteit voor de klik in de code. Deze is gemakkelijk toe te voegen door het implementeren van een "onSelect()" functie. Die ziet er als volgt uit:
+```javascript
+ selectedHero?: Hero;
+  onSelect(hero: Hero): void {
+    this.selectedHero = hero;
+  }
+```
+De functie wordt gekoppeld aan de onderdelen in de lijst doormiddel van het toevoegen van de volgende code in de html file:
+```javascript 
+<li *ngFor="let hero of heroes" (click)="onSelect(hero)">
+```
+Hier wordt de bijbehorende functie uitgevoerd indien er een "Click" is geregistreerd op een hero. 
+
+Om gekozen onderdelen in een lijst te highlighten kan er een onderdeel uit de css file worden ingeschakeld. In dit geval bevat de css het onderdeel "selected". Deze kan worden gebruikt voor een gekozen onderdeel van de lijst door het volgende code fragment toe te voegen aan de lijst parameters in de html:
+```javascript
+[class.selected]="hero === selectedHero" 
+```
+Wanneer er nu een selectedHero vaststaat zal deze als "selected" worden gezien vanuit de css en een eigen opmaak krijgen. 
+
 ## Creat a feature component
+
 
 ## Add services
 
