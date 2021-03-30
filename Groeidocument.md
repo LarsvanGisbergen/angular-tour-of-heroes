@@ -163,6 +163,26 @@ Omdat er nu een Observable type data wordt opgehaald moet dit in de heroes.compo
   }
 ```
 
+Nu gaan we een berichten service toevoegen die bij het ophalen van de heroes list een conformatie geeft. Deze nieuwe service wordt in de bestaande hero service gezet zodat elke instantie van de hero service automatisch ook een message service heeft. De functionaliteit wordt toegevoegd aan de getHeroes functie in de hero service als volgt:
+
+```javascript
+getHeroes(): Observable<Hero[]> {
+    const heroes = of(HEROES);
+    this.messageService.add('HeroService: fetched heroes');
+    return heroes;
+  }
+```
+De berichten service kan ook worden ingezet om bijvoorbeeld het id van een gekozen hero in de berichten cache te zetten. dit gaat als volgt:
+
+```javascript
+ onSelect(hero: Hero): void {
+    this.selectedHero = hero;
+    this.messageService.add(`HeroesComponent: Selected hero id=${hero.id}`)
+  }
+
+```
+
+
 
 ## Add navigation
 
