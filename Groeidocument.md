@@ -162,6 +162,8 @@ Omdat er nu een Observable type data wordt opgehaald moet dit in de heroes.compo
         .subscribe(heroes => this.heroes = heroes);
   }
 ```
+
+
 ## Add navigation
 
 ## Get data from a server
