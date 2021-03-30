@@ -294,3 +294,54 @@ Hierboven is ook te zien dat er een goBack() functie in de component zit verwerk
 
 
 ## Get data from a server
+
+Om een echte dataserver te imiteren gebruiken we een lokale server. Deze gaat op dezelfde manier te werk waardoor het ideaal is om mee te testen. Voor het opzetten van een "nepserver" is de volgende git pagina gebruikt: "https://github.com/angular/angular/tree/master/packages/misc/angular-in-memory-web-api".
+
+In de vorige hoofdstukken werd server data nagemaakt doormiddel van de of() functie in hero.service. Deze functie is niet meer nodig want we moeten nu een echte server get uitvoeren. De functie wordt omgebouwd naar de volgende code:
+
+```javascript
+  /** GET heroes from the server */
+  getHeroes(): Observable<Hero[]> {
+  return this.http.get<Hero[]>(this.heroesUrl)
+  }
+
+```
+Hierbij wordt de API url gebruikt om data op te halen. Deze url wordt beschreven door:
+
+```javascript
+  private heroesUrl = 'api/heroes';  // URL to web api
+```
+
+Tijdens het debuggen kwam ik erachter dat er in de bovenstaande git een error handler functie bestaat. Deze heb ik geimplementeerd:
+
+```javascript
+private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      this.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
+  }
+```
+Hiermee krijg ik in de messages log meer details over eventuele bugs en errors. Een voorbeeld van een gedetailleerde error message wanneer de heroes lijst niet kan worden ingeladen: "HeroService: getHeroes failed: Http failure response for http://localhost:4200/api/heroes: 404 Not Found"
+
+Om deze functie te gebruiken moet de getHeroes als volgt worden aangepast:
+
+```javascript
+ /** GET heroes from the server */
+getHeroes(): Observable<Hero[]> {
+  return this.http.get<Hero[]>(this.heroesUrl)
+    .pipe(
+      tap(_ => this.log('fetched heroes')),
+      catchError(this.handleError<Hero[]>('getHeroes', []))
+    );
+}
+```
+
+Met deze error handler heb ik de rest van de functies uit de tutorial geimplementeerd. Hier staan geen nieuwe dingen in en worden dus niet toegelicht. De manier waarop de handler wordt gebruikt is identiek met de code hierboven van de getHeroes() functie. 
